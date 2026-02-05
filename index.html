@@ -40,18 +40,14 @@
             max-width: 1000px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15), 
-                        0 6px 12px rgba(0, 0, 0, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            transition: box-shadow 0.3s ease;
         }
         
         .tab-container:hover {
-            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2), 
-                        0 8px 16px rgba(0, 0, 0, 0.15),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
         }
 
         .tab-buttons {
@@ -111,12 +107,12 @@
         }
 
         .tab-content {
-            padding: 20px;
+            padding: 20px; /* Reduced from 25px */
             display: none;
             animation: fadeIn 0.5s ease-in-out;
             background-color: #f8fafc;
             transition: background-color 0.5s ease;
-            min-height: 450px;
+            min-height: 450px; /* Reduced from 500px */
         }
         
         .tab-content.active {
@@ -126,19 +122,19 @@
         .sub-tab-container {
             background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%);
             border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 15px;
+            padding: 12px; /* Reduced from 15px */
+            margin-bottom: 15px; /* Reduced from 20px */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .sub-tab-buttons {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 12px; /* Reduced from 15px */
             background: rgba(52, 152, 219, 0.1);
             backdrop-filter: blur(5px);
             border-radius: 8px;
-            padding: 6px;
+            padding: 6px; /* Reduced from 8px */
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
             transition: box-shadow 0.3s ease;
             border: 1px solid rgba(52, 152, 219, 0.2);
@@ -149,76 +145,40 @@
         }
 
         .sub-tab-button {
-            padding: 10px 18px;
+            padding: 8px 16px; /* Reduced from 10px 20px */
             border: none;
             background: rgba(46, 204, 113, 0.2);
             cursor: pointer;
             font-weight: 700;
             border-radius: 6px;
-            margin-right: 8px;
+            margin-right: 8px; /* Reduced from 10px */
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.3s ease;
             color: #2c3e50;
-            font-size: 0.85em;
+            font-size: 0.7em;
             border: 1px solid rgba(46, 204, 113, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sub-tab-button:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.3), 
-                transparent
-            );
-            transition: left 0.6s ease;
-        }
-
-        .sub-tab-button:hover:before {
-            left: 100%;
         }
 
         .sub-tab-button:hover {
-            transform: translateY(-3px);
-            background: rgba(46, 204, 113, 0.35);
-            box-shadow: 0 6px 12px rgba(46, 204, 113, 0.25);
+            transform: translateY(-2px);
+            background: rgba(46, 204, 113, 0.3);
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
         }
 
         .sub-tab-button.active {
-            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
-            color: white;
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-            border: 1px solid rgba(52, 152, 219, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .sub-tab-button.active:after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 3px;
-            background: linear-gradient(90deg, #3498db, #2ecc71);
-            border-radius: 2px;
-            box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+            background: rgba(52, 152, 219, 0.3);
+            color: #2c3e50;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(52, 152, 219, 0.4);
         }
 
         .sub-tab-content {
             display: none;
-            animation: slideIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-            padding: 15px;
+            animation: fadeIn 0.5s ease-in-out;
+            padding: 12px; /* Reduced from 15px */
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(52, 152, 219, 0.15);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(52, 152, 219, 0.1);
         }
 
         @keyframes fadeIn {
@@ -232,24 +192,13 @@
             }
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .sub-tab-content.active {
             display: block;
         }
 
         /* Inner Tab Container (Troubleshooting/Installation) */
         .inner-tab-container {
-            margin: 10px 0;
+            margin: 10px 0; /* Reduced from 15px */
             border: 1px solid rgba(52, 152, 219, 0.2);
             border-radius: 8px;
             overflow: hidden;
@@ -258,20 +207,20 @@
         .inner-tab-buttons {
             display: flex;
             background: rgba(52, 152, 219, 0.1);
-            padding: 4px;
+            padding: 4px; /* Reduced from 5px */
         }
 
         .inner-tab-button {
-            padding: 6px 12px;
+            padding: 6px 12px; /* Reduced from 8px 15px */
             border: none;
             background: transparent;
             cursor: pointer;
             font-weight: 600;
             border-radius: 4px;
-            margin-right: 4px;
+            margin-right: 4px; /* Reduced from 5px */
             transition: all 0.3s ease;
             color: #2c3e50;
-            font-size: 0.7em;
+            font-size: 0.7em; /* Reduced from 0.75em */
             flex: 1;
             text-align: center;
         }
@@ -288,7 +237,7 @@
 
         .inner-tab-content {
             display: none;
-            padding: 12px;
+            padding: 12px; /* Reduced from 15px */
             animation: fadeIn 0.3s ease-in-out;
         }
 
@@ -301,17 +250,17 @@
             display: flex;
             align-items: center;
             position: relative;
-            margin-bottom: 15px;
-            margin-top: 8px;
+            margin-bottom: 15px; /* Reduced from 20px */
+            margin-top: 8px; /* Reduced from 10px */
         }
         
         .inner-tab-content .search-bar input[type="text"] {
-            padding: 8px 12px;
+            padding: 8px 12px; /* Reduced from 10px 15px */
             border: 2px solid #3498db;
             border-radius: 25px;
             transition: all 0.3s ease;
             width: 100%;
-            font-size: 0.75em;
+            font-size: 0.75em; /* Reduced from 0.8em */
             outline: none;
             box-sizing: border-box;
             background: rgba(255, 255, 255, 0.9);
@@ -325,15 +274,15 @@
 
         p {
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 8px; /* Reduced from 10px */
             color: #2c3e50;
             border-left: 4px solid #3498db;
-            padding-left: 12px;
+            padding-left: 12px; /* Reduced from 15px */
             transition: all 0.3s ease;
             background: rgba(52, 152, 219, 0.05);
-            padding: 8px 12px;
+            padding: 8px 12px; /* Reduced from 10px 15px */
             border-radius: 4px;
-            font-size: 0.85em;
+            font-size: 0.85em; /* Reduced from 0.9em */
         }
         
         p:hover {
@@ -343,18 +292,18 @@
 
         code {
             display: block;
-            padding: 12px;
+            padding: 12px; /* Reduced from 15px */
             background: linear-gradient(135deg, #e8f4fc 0%, #e8f7e9 100%);
             border: 1px solid #bdc3c7;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* Reduced from 20px */
             white-space: pre-wrap;
             font-family: 'trebuchet ms', trebuchet ms, monospace;
             overflow-x: auto;
             position: relative;
             transition: all 0.3s ease;
             color: #2c3e50;
-            font-size: 0.8em;
+            font-size: 0.8em; /* Reduced from 0.85em */
         }
         
         code:hover {
@@ -374,17 +323,17 @@
         .olt-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 15px; /* Reduced from 20px */
             font-family: 'trebuchet ms', trebuchet ms;
             background: white;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            font-size: 0.95em;
+            font-size: 0.95em; /* Increased font size */
         }
         
         .olt-table th, .olt-table td {
-            padding: 12px 14px;
+            padding: 12px 14px; /* Reduced from 14px 16px */
             border: 1px solid #e0f7fa;
             text-align: left;
             transition: all 0.3s ease;
@@ -396,7 +345,7 @@
             background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
             color: white;
             font-family: 'trebuchet ms', trebuchet ms;
-            font-size: 1em;
+            font-size: 1em; /* Larger header font */
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
@@ -421,8 +370,8 @@
         }
 
         .olt-bts-select {
-            margin-bottom: 15px;
-            padding: 10px;
+            margin-bottom: 15px; /* Reduced from 20px */
+            padding: 10px; /* Reduced from 12px */
             font-family: 'trebuchet ms', trebuchet ms;
             border-radius: 8px;
             border: 2px solid #3498db;
@@ -433,7 +382,7 @@
             box-sizing: border-box;
             color: #2c3e50;
             cursor: pointer;
-            font-size: 0.85em;
+            font-size: 0.85em; /* Reduced from 0.9em */
         }
         
         .olt-bts-select:hover, .olt-bts-select:focus {
@@ -448,75 +397,43 @@
             color: #2c3e50;
             border-bottom: 2px solid #2ecc71;
             padding-bottom: 5px;
-            margin-top: 20px;
-            margin-bottom: 12px;
-            font-size: 1em;
+            margin-top: 20px; /* Reduced from 25px */
+            margin-bottom: 12px; /* Reduced from 15px */
+            font-size: 1em; /* Reduced from 1.1em */
         }
 
-        /* Mobile Responsiveness - Improved */
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .tab-buttons {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                padding-bottom: 4px;
+                flex-wrap: wrap;
             }
             
             .tab-button {
-                padding: 10px 16px;
-                font-size: 0.85em;
-                flex: 0 0 auto;
-                min-width: 140px;
+                flex: 1 0 auto;
+                min-width: 150px;
             }
             
             .sub-tab-buttons {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                padding: 8px 4px;
-                gap: 4px;
-                scrollbar-width: thin;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .sub-tab-buttons::-webkit-scrollbar {
-                height: 6px;
-            }
-            
-            .sub-tab-buttons::-webkit-scrollbar-track {
-                background: rgba(52, 152, 219, 0.1);
-                border-radius: 3px;
-            }
-            
-            .sub-tab-buttons::-webkit-scrollbar-thumb {
-                background: rgba(52, 152, 219, 0.3);
-                border-radius: 3px;
+                flex-wrap: wrap;
+                gap: 4px; /* Reduced from 5px */
             }
             
             .sub-tab-button {
-                padding: 10px 18px;
-                font-size: 0.8em;
-                margin-right: 6px;
-                margin-bottom: 4px;
-                flex: 0 0 auto;
-                white-space: nowrap;
-                min-width: 120px;
-            }
-            
-            .sub-tab-button:active {
-                transform: scale(0.98);
+                margin-right: 4px; /* Reduced from 5px */
+                margin-bottom: 4px; /* Reduced from 5px */
+                flex: 1 0 auto;
+                padding: 6px 12px; /* Reduced for mobile */
             }
 
             .inner-tab-buttons {
                 flex-wrap: wrap;
-                padding: 6px;
             }
             
             .inner-tab-button {
-                padding: 8px 14px;
-                font-size: 0.75em;
-                margin-right: 6px;
-                margin-bottom: 6px;
-                flex: 1 0 45%;
-                min-width: 120px;
+                margin-right: 2px; /* Reduced from 3px */
+                margin-bottom: 2px; /* Reduced from 3px */
+                font-size: 0.65em; /* Reduced from 0.7em */
+                padding: 5px 8px; /* Reduced from 6px 10px */
             }
 
             .olt-table thead {
@@ -530,7 +447,7 @@
             }
 
             .olt-table tr {
-                margin-bottom: 12px;
+                margin-bottom: 12px; /* Reduced from 15px */
                 border: 1px solid #ddd;
                 border-radius: 8px;
                 overflow: hidden;
@@ -539,24 +456,24 @@
 
             .olt-table td {
                 text-align: right;
-                padding-left: 45%;
+                padding-left: 50%;
                 position: relative;
                 border: none;
                 border-bottom: 1px solid #eee;
-                font-size: 0.9em;
+                font-size: 0.85em; /* Reduced from 0.9em */
             }
 
             .olt-table td:before {
                 content: attr(data-label);
                 position: absolute;
                 left: 10px;
-                width: calc(45% - 15px);
+                width: calc(50% - 20px);
                 padding-right: 10px;
                 white-space: nowrap;
                 text-align: left;
                 font-weight: normal;
                 color: #3498db;
-                font-size: 0.85em;
+                font-size: 0.8em; /* Reduced from 0.85em */
             }
             
             .olt-table td:nth-of-type(1):before { content: "OLT Name:"; }
@@ -1217,16 +1134,6 @@ system\configure# pon on 1 1</code>
             const parentTab = document.getElementById(parentTabName);
             const container = parentTab.querySelector('.sub-tab-container');
 
-            // Animation effect for current active tab
-            const currentActive = container.querySelector('.sub-tab-content.active');
-            if (currentActive) {
-                currentActive.style.opacity = '0';
-                currentActive.style.transform = 'translateY(10px)';
-                setTimeout(() => {
-                    currentActive.classList.remove("active");
-                }, 150);
-            }
-
             subtabcontent = container.getElementsByClassName("sub-tab-content");
             for (i = 0; i < subtabcontent.length; i++) {
                 subtabcontent[i].classList.remove("active");
@@ -1237,28 +1144,8 @@ system\configure# pon on 1 1</code>
                 subtabbuttons[i].classList.remove("active");
             }
 
-            // Add active class with delay for animation
-            setTimeout(() => {
-                const newTab = document.getElementById(subTabName);
-                newTab.classList.add("active");
-                newTab.style.opacity = '0';
-                newTab.style.transform = 'translateY(10px)';
-                
-                // Trigger reflow for animation
-                newTab.offsetHeight;
-                
-                newTab.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                newTab.style.opacity = '1';
-                newTab.style.transform = 'translateY(0)';
-            }, 150);
-
+            document.getElementById(subTabName).classList.add("active");
             evt.currentTarget.classList.add("active");
-            
-            // Button click effect
-            evt.currentTarget.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                evt.currentTarget.style.transform = '';
-            }, 150);
         }
 
         function openInnerTab(evt, innerTabName, parentSubTabName) {
