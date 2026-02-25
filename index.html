@@ -1,829 +1,905 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OLT Docs</title>
+    <title>OLT Docs | Blue-Green Terminal</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        :root {
+            /* Lucrative Blue-Green Gradient Mix */
+            --bg-gradient: linear-gradient(135deg, #021B35 0%, #034B5D 50%, #067D7D 100%); 
+            --bg-pattern: radial-gradient(rgba(6, 125, 125, 0.1) 1px, transparent 1px);
+            
+            /* Glass & Shadows */
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            
+            /* Hierarchy Colors (Blue to Green Transition) */
+            --lvl1-color: #fff;
+            --lvl1-active: #00d4ff; /* Cyan Blue */
+            --lvl2-color: #bde0fe;
+            --lvl2-active: #00ff9d; /* Bright Green */
+            --lvl3-color: #99f6e4;
+            --lvl3-active: #00ff9d;
+            
+            /* Code Block (Terminal Style) */
+            --code-bg: #000000;
+            --code-text: #00ff00; /* Matrix Green */
+            
+            /* Font */
+            --font-main: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            
+            /* Text */
+            --text-main: #1e293b;
+            --text-muted: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
 
         body {
-            font-family: 'trebuchet ms', trebuchet ms;
-            background: linear-gradient(135deg, #40B5AD 0%, #3498db 100%);
+            font-family: var(--font-main);
+            background-color: #021B35;
+            background-image: var(--bg-gradient), var(--bg-pattern);
+            background-size: 100% 100%, 20px 20px;
+            background-attachment: fixed;
             margin: 0;
-            padding: 20px;
-            color: #1a1a1a;
-            transition: background-color 0.5s ease;
-            min-height: 100vh;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 1.75em;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
-        }
-        
-        h2 {
-            text-align: left;
-            font-size: 0.9em;
-            font-weight: 400;
-            color: #34495e;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
-        }
-
-        .tab-container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            padding: 0;
+            color: var(--text-main);
+            height: 100vh;
             overflow: hidden;
-            transition: box-shadow 0.3s ease;
+        }
+
+        /* --- Layout --- */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* --- Sidebar (Hierarchy Focus) --- */
+        .sidebar {
+            width: 290px;
+            background: rgba(2, 27, 53, 0.9);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(0, 212, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            transition: transform 0.3s ease;
+            color: #fff;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            background: linear-gradient(180deg, rgba(0, 255, 157, 0.1) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+        }
+
+        .sidebar-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d4ff 0%, #00ff9d 100%); /* Blue to Green Text */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .tab-container:hover {
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        .sidebar-header h2 {
+            margin: 5px 0 0 0;
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .tab-buttons {
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(0, 255, 157, 0.3); border-radius: 4px; }
+
+        /* --- Tree Hierarchy Styling --- */
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-item { position: relative; }
+
+        .nav-link {
             display: flex;
-            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .tab-buttons::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab-button {
-            padding: 7px 10px;
-            border: none;
-            background-color: transparent;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+            font-family: var(--font-main);
+        }
+
+        /* Level 1 Hover */
+        .nav-link:hover {
+            background-color: rgba(0, 212, 255, 0.1);
+            padding-left: 28px;
+            color: #fff;
+        }
+
+        /* Level 1 Active */
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.2) 0%, transparent 100%);
+            color: var(--lvl1-active);
+            border-left-color: var(--lvl1-active);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .nav-link .icon { margin-right: 10px; width: 20px; text-align: center; }
+        .nav-link .arrow { font-size: 0.6rem; transition: transform 0.3s ease; color: rgba(255,255,255,0.4); }
+        .nav-item.open > .nav-link .arrow { transform: rotate(180deg); }
+
+        /* --- Level 2 (Submenu) --- */
+        .submenu {
+            list-style: none;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: max-height 0.4s ease-out;
+            border-left: 1px solid rgba(255,255,255,0.05); /* Visual connector */
+            margin-left: 24px; /* Indent tree */
+        }
+
+        .nav-item.open > .submenu { max-height: 2000px; }
+
+        .submenu .nav-link {
+            padding-left: 20px; /* Relative to parent margin */
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--lvl2-color);
+            border-left-color: transparent;
+        }
+        
+        .submenu .nav-link:hover {
+            background-color: rgba(0, 255, 157, 0.1);
+            color: #fff;
+            border-left-color: var(--lvl2-active);
+        }
+
+        .submenu .nav-link.active { 
+            color: var(--lvl2-active);
+            border-left-color: var(--lvl2-active);
             font-weight: 700;
-            font-size: 0.95em;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            flex-grow: 1;
-            text-align: center;
+            background: linear-gradient(90deg, rgba(0, 255, 157, 0.1) 0%, transparent 100%);
+        }
+
+        /* --- Level 3 (Sub-Submenu) --- */
+        .submenu .submenu {
+            border-left: 1px solid rgba(0, 255, 157, 0.1);
+            margin-left: 20px;
+        }
+
+        .submenu .submenu .nav-link {
+            padding-left: 20px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--lvl3-color);
+        }
+
+        .submenu .submenu .nav-link:hover {
+            color: #fff;
+            background-color: rgba(0, 255, 157, 0.15);
+            border-left-color: #fff;
+        }
+
+        .submenu .submenu .nav-link.active {
+            color: var(--lvl3-active);
+            background: rgba(0, 255, 157, 0.2);
+            border-left: 2px solid var(--lvl3-active);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mobile-header {
+            display: none;
+            padding: 15px 20px;
+            background: rgba(2, 27, 53, 0.95);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 50;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            color: #fff;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #00ff9d;
+            font-size: 1.5rem;
+        }
+
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Content Cards --- */
+        .tab-content {
+            display: none;
+            max-width: 1100px;
+            margin: 0 auto;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .tab-content.active { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: var(--glass-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--glass-border);
             position: relative;
             overflow: hidden;
         }
-
-        .tab-button:before {
+        
+        /* Decorative line on top of cards */
+        .card::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
+            left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: left 0.3s ease;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff 0%, #00ff9d 100%);
         }
 
-        .tab-button:hover:before {
-            left: 100%;
-        }
-
-        .tab-button:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white;
-        }
-
-        .tab-button.active {
-            background-color: rgba(255, 255, 255, 0.25);
-            border-bottom: 4px solid #f1c40f;
-            color: white;
-        }
-
-        .tab-content {
-            padding: 20px; /* Reduced from 25px */
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-            background-color: #f8fafc;
-            transition: background-color 0.5s ease;
-            min-height: 450px; /* Reduced from 500px */
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-
-        .sub-tab-container {
-            background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%);
-            border-radius: 8px;
-            padding: 12px; /* Reduced from 15px */
-            margin-bottom: 15px; /* Reduced from 20px */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .sub-tab-buttons {
+        .card-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px; /* Reduced from 15px */
-            background: rgba(52, 152, 219, 0.1);
-            backdrop-filter: blur(5px);
-            border-radius: 8px;
-            padding: 6px; /* Reduced from 8px */
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease;
-            border: 1px solid rgba(52, 152, 219, 0.2);
-        }
-        
-        .sub-tab-buttons:hover {
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.15);
         }
 
-        .sub-tab-button {
-            padding: 8px 16px; /* Reduced from 10px 20px */
-            border: none;
-            background: rgba(46, 204, 113, 0.2);
-            cursor: pointer;
+        .card-title {
+            font-size: 1.3rem;
             font-weight: 700;
-            border-radius: 6px;
-            margin-right: 8px; /* Reduced from 10px */
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            color: #2c3e50;
-            font-size: 0.7em;
-            border: 1px solid rgba(46, 204, 113, 0.3);
-        }
-
-        .sub-tab-button:hover {
-            transform: translateY(-2px);
-            background: rgba(46, 204, 113, 0.3);
-            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
-        }
-
-        .sub-tab-button.active {
-            background: rgba(52, 152, 219, 0.3);
-            color: #2c3e50;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(52, 152, 219, 0.4);
-        }
-
-        .sub-tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-            padding: 12px; /* Reduced from 15px */
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(52, 152, 219, 0.1);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .sub-tab-content.active {
-            display: block;
-        }
-
-        /* Inner Tab Container (Troubleshooting/Installation) */
-        .inner-tab-container {
-            margin: 10px 0; /* Reduced from 15px */
-            border: 1px solid rgba(52, 152, 219, 0.2);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .inner-tab-buttons {
-            display: flex;
-            background: rgba(52, 152, 219, 0.1);
-            padding: 4px; /* Reduced from 5px */
-        }
-
-        .inner-tab-button {
-            padding: 6px 12px; /* Reduced from 8px 15px */
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-weight: 600;
-            border-radius: 4px;
-            margin-right: 4px; /* Reduced from 5px */
-            transition: all 0.3s ease;
-            color: #2c3e50;
-            font-size: 0.7em; /* Reduced from 0.75em */
-            flex: 1;
-            text-align: center;
-        }
-
-        .inner-tab-button:hover {
-            background: rgba(46, 204, 113, 0.2);
-        }
-
-        .inner-tab-button.active {
-            background: rgba(52, 152, 219, 0.3);
-            color: #2c3e50;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .inner-tab-content {
-            display: none;
-            padding: 12px; /* Reduced from 15px */
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .inner-tab-content.active {
-            display: block;
-        }
-
-        /* Search bar inside inner tab content (below Troubleshooting/Installation buttons) */
-        .inner-tab-content .search-bar {
+            color: #0f172a;
+            margin: 0;
             display: flex;
             align-items: center;
-            position: relative;
-            margin-bottom: 15px; /* Reduced from 20px */
-            margin-top: 8px; /* Reduced from 10px */
+            gap: 10px;
         }
         
-        .inner-tab-content .search-bar input[type="text"] {
-            padding: 8px 12px; /* Reduced from 10px 15px */
-            border: 2px solid #3498db;
-            border-radius: 25px;
-            transition: all 0.3s ease;
+        .card-title::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 24px;
+            background: linear-gradient(180deg, #00d4ff, #00ff9d);
+            border-radius: 3px;
+        }
+
+        /* --- Inputs & Selects --- */
+        .olt-bts-select, .search-input {
             width: 100%;
-            font-size: 0.75em; /* Reduced from 0.8em */
-            outline: none;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: #fff;
+            color: #334155;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: var(--font-main);
+            margin-bottom: 10px;
+        }
+        
+        .olt-bts-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300ff9d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 18px auto;
         }
 
-        .inner-tab-content .search-bar input[type="text"]:focus {
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
-            transform: scale(1.02);
-            border-color: #2ecc71;
+        .olt-bts-select:focus, .search-input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
         }
 
+        .search-wrapper { position: relative; margin-bottom: 25px; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .search-input { padding-left: 45px; margin-bottom: 0; }
+
+        /* --- Terminal Style Code Blocks --- */
         p {
             font-weight: bold;
-            margin-bottom: 8px; /* Reduced from 10px */
-            color: #2c3e50;
-            border-left: 4px solid #3498db;
-            padding-left: 12px; /* Reduced from 15px */
-            transition: all 0.3s ease;
-            background: rgba(52, 152, 219, 0.05);
-            padding: 8px 12px; /* Reduced from 10px 15px */
-            border-radius: 4px;
-            font-size: 0.85em; /* Reduced from 0.9em */
-        }
-        
-        p:hover {
-            border-color: #2ecc71;
-            background: rgba(46, 204, 113, 0.05);
+            margin-bottom: 5px;
+            color: #0f172a;
+            border-left: 4px solid #00ff9d;
+            padding: 8px 12px;
+            background: #f0fdf4;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+            margin-top: 25px;
+            font-family: var(--font-main);
         }
 
         code {
             display: block;
-            padding: 12px; /* Reduced from 15px */
-            background: linear-gradient(135deg, #e8f4fc 0%, #e8f7e9 100%);
-            border: 1px solid #bdc3c7;
-            border-radius: 8px;
-            margin-bottom: 15px; /* Reduced from 20px */
+            padding: 18px;
+            background: var(--code-bg); /* Black Background */
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            margin-bottom: 30px; /* Increased Distance between commands */
             white-space: pre-wrap;
-            font-family: 'trebuchet ms', trebuchet ms, monospace;
-            overflow-x: auto;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            color: var(--code-text); /* Green Text */
             position: relative;
-            transition: all 0.3s ease;
-            color: #2c3e50;
-            font-size: 0.8em; /* Reduced from 0.85em */
+            overflow-x: auto;
+            line-height: 1.6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3), 0 0 10px rgba(0, 255, 0, 0.1); /* Subtle Green Glow */
         }
-        
+
         code:hover {
-            background: linear-gradient(135deg, #d4e6f1 0%, #d4efdf 100%);
-            border-color: #3498db;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-color: #00ff9d;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4), 0 0 15px rgba(0, 255, 157, 0.2);
+            transform: translateX(2px);
         }
 
         code.highlighted {
-            background: linear-gradient(135deg, #30C5FF 0%, #2ecc71 100%);
-            border-color: #3498db;
-            color: white;
+            background: #002200; /* Very dark green highlight bg */
+            border-color: #00ff9d;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
         }
 
-        /* OLT Table Styles - LARGER Font */
+        /* --- Tables --- */
         .olt-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px; /* Reduced from 20px */
-            font-family: 'trebuchet ms', trebuchet ms;
-            background: white;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 10px;
+            background: #fff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            font-size: 0.95em; /* Increased font size */
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
         }
-        
+
         .olt-table th, .olt-table td {
-            padding: 12px 14px; /* Reduced from 14px 16px */
-            border: 1px solid #e0f7fa;
-            text-align: left;
-            transition: all 0.3s ease;
-            white-space: normal;
-            line-height: 1.4;
+            padding: 14px 16px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
         }
-        
+
         .olt-table th {
-            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
-            color: white;
-            font-family: 'trebuchet ms', trebuchet ms;
-            font-size: 1em; /* Larger header font */
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            background: #f1f5f9;
+            color: #00A36C;/*#00d4ff;*/
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #cbd5e1;
         }
 
-        .olt-table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
+        .olt-table tr:hover { background-color: #f8fafc; }
+        .olt-table td:nth-child(2) { color: #008793; font-weight: 700; }
 
-        .olt-table tr:hover {
-            background-color: #e8f4fc;
-            transform: scale(1.01);
+        /* --- Mobile Overlay --- */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(2px);
+            z-index: 90; opacity: 0; transition: opacity 0.3s ease;
         }
-        
-        .olt-table td {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        
-        .olt-table td:nth-child(2) {
-            color: #2980b9;
-            font-size: 0.95em;
-        }
+        .overlay.active { display: block; opacity: 1; }
 
-        .olt-bts-select {
-            margin-bottom: 15px; /* Reduced from 20px */
-            padding: 10px; /* Reduced from 12px */
-            font-family: 'trebuchet ms', trebuchet ms;
-            border-radius: 8px;
-            border: 2px solid #3498db;
-            background-color: white;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
-            color: #2c3e50;
-            cursor: pointer;
-            font-size: 0.85em; /* Reduced from 0.9em */
-        }
-        
-        .olt-bts-select:hover, .olt-bts-select:focus {
-            background-color: #f0f9ff;
-            border-color: #2ecc71;
-            box-shadow: 0 0 8px rgba(46, 204, 113, 0.3);
-            outline: none;
-        }
-
-        /* Section Headers */
-        .section-header {
-            color: #2c3e50;
-            border-bottom: 2px solid #2ecc71;
-            padding-bottom: 5px;
-            margin-top: 20px; /* Reduced from 25px */
-            margin-bottom: 12px; /* Reduced from 15px */
-            font-size: 1em; /* Reduced from 1.1em */
-        }
-
-        /* Mobile Responsiveness */
+        /* --- Responsive --- */
         @media (max-width: 768px) {
-            .tab-buttons {
-                flex-wrap: wrap;
-            }
+            .app-container { position: relative; }
+            .sidebar { position: fixed; left: -290px; height: 100%; }
+            .sidebar.active { transform: translateX(290px); left: -290px; }
+            .mobile-header { display: flex; }
+            .content-scroll { padding: 20px; }
             
-            .tab-button {
-                flex: 1 0 auto;
-                min-width: 150px;
-            }
-            
-            .sub-tab-buttons {
-                flex-wrap: wrap;
-                gap: 4px; /* Reduced from 5px */
-            }
-            
-            .sub-tab-button {
-                margin-right: 4px; /* Reduced from 5px */
-                margin-bottom: 4px; /* Reduced from 5px */
-                flex: 1 0 auto;
-                padding: 6px 12px; /* Reduced for mobile */
-            }
-
-            .inner-tab-buttons {
-                flex-wrap: wrap;
-            }
-            
-            .inner-tab-button {
-                margin-right: 2px; /* Reduced from 3px */
-                margin-bottom: 2px; /* Reduced from 3px */
-                font-size: 0.65em; /* Reduced from 0.7em */
-                padding: 5px 8px; /* Reduced from 6px 10px */
-            }
-
-            .olt-table thead {
-                display: none;
-            }
-
-            .olt-table, .olt-table tbody, .olt-table tr, .olt-table td {
-                display: block;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
+            .olt-table { font-size: 0.85rem; }
+            .olt-table thead { display: none; }
+            .olt-table, .olt-table tbody, .olt-table tr, .olt-table td { display: block; width: 100%; box-sizing: border-box; }
             .olt-table tr {
-                margin-bottom: 12px; /* Reduced from 15px */
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                overflow: hidden;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff;
             }
-
             .olt-table td {
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
-                border: none;
-                border-bottom: 1px solid #eee;
-                font-size: 0.85em; /* Reduced from 0.9em */
+                text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid #f1f5f9;
             }
-
             .olt-table td:before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: calc(50% - 20px);
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left;
-                font-weight: normal;
-                color: #3498db;
-                font-size: 0.8em; /* Reduced from 0.85em */
+                content: attr(data-label); position: absolute; left: 15px; width: 40%; padding-right: 10px;
+                white-space: nowrap; text-align: left; font-weight: bold; color: #00d4ff;
             }
-            
-            .olt-table td:nth-of-type(1):before { content: "OLT Name:"; }
-            .olt-table td:nth-of-type(2):before { content: "OLT IP:"; }
-            .olt-table td:nth-of-type(3):before { content: "Uplink Port:"; }
+            .olt-table td:last-child { border-bottom: none; }
         }
     </style>
 </head>
 <body>
 
-    <h1>OLT DOCUMENTATION</h1>
-    <h2><center>Prepared By AHSANUL KABIR</center></h2>
+    <div class="app-container">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-    <div class="tab-container">
-        <div class="tab-buttons">
-            <button class="tab-button" onclick="openTab(event, 'olt_ips')">OLT IPs</button>
-            <button class="tab-button" onclick="openTab(event, 'gpon_olt')">GPON OLT</button>
-            <button class="tab-button" onclick="openTab(event, 'epon_olt')">EPON OLT</button>
-        </div>
-
-        <!-- OLT IPs Tab -->
-        <div id="olt_ips" class="tab-content active">
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <select class="olt-bts-select" id="olt-bts-select" onchange="filterOltIps()">
-                    <option value="all">All BTS</option>
-                    <option value="Malek Mansion BTS">Malek Mansion BTS</option>
-                    <option value="Dilkusha BTS">Dilkusha BTS</option>
-                    <option value="Jatrabari BTS">Jatrabari BTS</option>
-                    <option value="Wari BTS">Wari BTS</option>
-                    <option value="Segunbagicha BTS">Segunbagicha BTS</option>
-                    <option value="Eskaton BTS">Eskaton BTS</option>
-                    <option value="Imamganj BTS">Imamganj BTS</option>
-                    <option value="Shahjahanpur BTS">Shahjahanpur BTS</option>
-                </select>
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#00d4ff"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    OLT Docs
+                </h1>
+                <h2>Prepared By AHSANUL KABIR</h2>
             </div>
             
-            <table class="olt-table">
-                <thead>
-                    <tr>
-                        <th>OLT Name</th>
-                        <th>OLT IP</th>
-                        <th>Uplink Port</th>
-                    </tr>
-                </thead>
-                <tbody id="olt-ip-table-body">
-                    <!-- Table rows remain the same -->
-                    <tr data-bts="Malek Mansion BTS">
-                        <td data-label="OLT Name">Malek_CDATA_01</td>
-                        <td data-label="OLT IP">10.49.10.162</td>
-                        <td data-label="Uplink Port">100.64.167.14 [Eth1/31]</td>
-                    </tr>
-                    <tr data-bts="Malek Mansion BTS">
-                        <td data-label="OLT Name">Malek_VSOL_02</td>
-                        <td data-label="OLT IP">10.49.10.166</td>
-                        <td data-label="Uplink Port">100.64.167.14 [Eth1/7]</td>
-                    </tr>
-                    <tr data-bts="Malek Mansion BTS">
-                        <td data-label="OLT Name">Malek_ATOP_03</td>
-                        <td data-label="OLT IP">10.49.15.138</td>
-                        <td data-label="Uplink Port">100.64.167.14 [Eth1/13]</td>
-                    </tr>
-                    <tr data-bts="Malek Mansion BTS">
-                        <td data-label="OLT Name">Malek_VSOL_04</td>
-                        <td data-label="OLT IP">10.49.15.126</td>
-                        <td data-label="Uplink Port">100.64.167.14 [Eth1/8]</td>
-                    </tr>
-                    <tr data-bts="Dilkusha BTS">
-                        <td data-label="OLT Name">Dilkusha_CDATA_01</td>
-                        <td data-label="OLT IP">10.49.8.26</td>
-                        <td data-label="Uplink Port">10.48.2.82 [Gi0/6]</td>
-                    </tr>
-                    <tr data-bts="Jatrabari BTS">
-                        <td data-label="OLT Name">Jatrabari_ATOP_01</td>
-                        <td data-label="OLT IP">10.49.9.62</td>
-                        <td data-label="Uplink Port">100.64.168.58 [GE0/0/15]</td>
-                    </tr>
-                    <tr data-bts="Wari BTS">
-                        <td data-label="OLT Name">Wari_CDATA_01</td>
-                        <td data-label="OLT IP">10.49.8.84</td>
-                        <td data-label="Uplink Port">100.64.168.66 [GE0/0/2]</td>
-                    </tr>
-                    <tr data-bts="Wari BTS">
-                        <td data-label="OLT Name">Wari_ATOP_02</td>
-                        <td data-label="OLT IP">10.49.8.85</td>
-                        <td data-label="Uplink Port">100.64.168.66 [XGE0/0/2]</td>
-                    </tr>
-                    <tr data-bts="Segunbagicha BTS">
-                        <td data-label="OLT Name">Segun_CDATA_01</td>
-                        <td data-label="OLT IP">10.49.10.130</td>
-                        <td data-label="Uplink Port">10.66.9.250 [Eth1/29]</td>
-                    </tr>
-                    <tr data-bts="Segunbagicha BTS">
-                        <td data-label="OLT Name">Segun_CDATA_02</td>
-                        <td data-label="OLT IP">10.49.10.131</td>
-                        <td data-label="Uplink Port">10.66.9.250 [Eth1/43]</td>
-                    </tr>
-                    <tr data-bts="Segunbagicha BTS">
-                        <td data-label="OLT Name">Segun_CDATA_03</td>
-                        <td data-label="OLT IP">10.49.10.132</td>
-                        <td data-label="Uplink Port">10.66.9.250 [Eth1/33]</td>
-                    </tr>
-                    <tr data-bts="Segunbagicha BTS">
-                        <td data-label="OLT Name">Segun_CDATA_18</td>
-                        <td data-label="OLT IP">10.49.10.150</td>
-                        <td data-label="Uplink Port">10.66.9.250 [Eth1/27]</td>
-                    </tr>
-                    <tr data-bts="Segunbagicha BTS">
-                        <td data-label="OLT Name">Segun_CDATA_19</td>
-                        <td data-label="OLT IP">10.49.10.151</td>
-                        <td data-label="Uplink Port">10.66.9.250 [Eth1/28]</td>
-                    </tr>
-                    <tr data-bts="Segunbagicha BTS">
-                        <td data-label="OLT Name">Segun_CDATA_20</td>
-                        <td data-label="OLT IP">10.49.10.152</td>
-                        <td data-label="Uplink Port">10.66.9.250 [Eth1/32]</td>
-                    </tr>
-                    <tr data-bts="Eskaton BTS">
-                        <td data-label="OLT Name">Eskaton_CDATA_01</td>
-                        <td data-label="OLT IP">10.49.10.172</td>
-                        <td data-label="Uplink Port">10.66.1.250 [Eth1/18]</td>
-                    </tr>
-                    <tr data-bts="Eskaton BTS">
-                        <td data-label="OLT Name">Eskaton_CDATA_02</td>
-                        <td data-label="OLT IP">10.49.10.171</td>
-                        <td data-label="Uplink Port">10.66.1.250 [Eth1/21]</td>
-                    </tr>
-                    <tr data-bts="Eskaton BTS">
-                        <td data-label="OLT Name">Eskaton_CDATA_03</td>
-                        <td data-label="OLT IP">10.49.10.173</td>
-                        <td data-label="Uplink Port">10.66.1.250 [Eth1/19]</td>
-                    </tr>
-                    <tr data-bts="Imamganj BTS">
-                        <td data-label="OLT Name">Imamgonj_VSOL_01</td>
-                        <td data-label="OLT IP">10.49.8.94</td>
-                        <td data-label="Uplink Port">10.66.61.2 [Gi0/42]</td>
-                    </tr>
-                    <tr data-bts="Imamganj BTS">
-                        <td data-label="OLT Name">Imamgonj_UTS_03</td>
-                        <td data-label="OLT IP">10.49.8.91</td>
-                        <td data-label="Uplink Port">10.66.61.2 [Gi0/52]</td>
-                    </tr>
-                    <tr data-bts="Shahjahanpur BTS">
-                        <td data-label="OLT Name">Shahjhnpur_CDTA_1</td>
-                        <td data-label="OLT IP">10.49.11.254</td>
-                        <td data-label="Uplink Port">-</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            <ul class="nav-list">
+                <!-- OLT IPs (Level 1) -->
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="toggleMenu(this, 'olt_ips')">
+                        <span><span class="icon">📡</span>OLT IPs</span>
+                    </a>
+                </li>
 
-        <!-- GPON OLT Tab -->
-        <div id="gpon_olt" class="tab-content">
-            <div class="sub-tab-container">
-                <div class="sub-tab-buttons">
-                    <button class="sub-tab-button active" onclick="openSubTab(event, 'cdata_gpon', 'gpon_olt')">CDATA GPON</button>
-                    <button class="sub-tab-button" onclick="openSubTab(event, 'vsol_atop', 'gpon_olt')">VSOL & ATOP</button>
-                    <button class="sub-tab-button" onclick="openSubTab(event, 'gpon_8_port', 'gpon_olt')">GPON 8 Port</button>
-                </div>
+                <!-- GPON OLT (Level 1) -->
+                <li class="nav-item">
+                    <a class="nav-link" onclick="toggleMenu(this)">
+                        <span><span class="icon">🔷</span>GPON OLT</span>
+                        <span class="arrow">▼</span>
+                    </a>
+                    <ul class="submenu">
+                        <!-- CDATA GPON (Level 2) -->
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="toggleMenu(this)">
+                                <span>CDATA GPON</span>
+                                <span class="arrow">▼</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('cdata_troubleshoot')">Troubleshooting</a></li>
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('cdata_installation')">Installation</a></li>
+                            </ul>
+                        </li>
+                        <!-- VSOL & ATOP (Level 2) -->
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="toggleMenu(this)">
+                                <span>VSOL & ATOP</span>
+                                <span class="arrow">▼</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('vsol_troubleshoot')">Troubleshooting</a></li>
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('vsol_installation')">Installation</a></li>
+                            </ul>
+                        </li>
+                        <!-- GPON 8 Port (Level 2) -->
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="toggleMenu(this)">
+                                <span>GPON 8 Port</span>
+                                <span class="arrow">▼</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('gpon8_troubleshoot')">Troubleshooting</a></li>
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('gpon8_installation')">Installation</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- EPON OLT (Level 1) -->
+                <li class="nav-item">
+                    <a class="nav-link" onclick="toggleMenu(this)">
+                        <span><span class="icon">🟢</span>EPON OLT</span>
+                        <span class="arrow">▼</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="toggleMenu(this)">
+                                <span>EPON UTSTAR</span>
+                                <span class="arrow">▼</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('utstar_troubleshoot')">Troubleshooting</a></li>
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('utstar_installation')">Installation</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="toggleMenu(this)">
+                                <span>EPON PHYHOME</span>
+                                <span class="arrow">▼</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('phyhome_troubleshoot')">Troubleshooting</a></li>
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('phyhome_installation')">Installation</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="toggleMenu(this)">
+                                <span>EPON FHNET</span>
+                                <span class="arrow">▼</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('fhnet_troubleshoot')">Troubleshooting</a></li>
+                                <li class="nav-item"><a class="nav-link" onclick="showContent('fhnet_installation')">Installation</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="mobile-header">
+                <h3 style="margin:0; font-size:1.1rem; font-weight:700;">OLT Docs</h3>
+                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            </header>
+
+            <div class="content-scroll">
                 
-                <!-- CDATA GPON Sub-tab -->
-                <div id="cdata_gpon" class="sub-tab-content active">
-                    <div class="inner-tab-container">
-                        <div class="inner-tab-buttons">
-                            <button class="inner-tab-button active" onclick="openInnerTab(event, 'cdata_troubleshoot', 'cdata_gpon')">Troubleshooting</button>
-                            <button class="inner-tab-button" onclick="openInnerTab(event, 'cdata_installation', 'cdata_gpon')">Installation</button>
+                <!-- OLT IPs Content -->
+                <div id="olt_ips" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">OLT IP Info</h2>
                         </div>
-                        
-                        <!-- Troubleshooting Content -->
-                        <div id="cdata_troubleshoot" class="inner-tab-content active">
-                            <div class="search-bar">
-                                <input type="text" id="cdata_troubleshoot_search" placeholder="Search CDATA GPON Troubleshooting commands...">
-                            </div>
-                            <p>ONU Discover check:</p>
-                            <code>(config-interface-gpon-0/0)# show ont autofind all
+                        <div style="margin-bottom: 20px;">
+                            <label style="display:block; margin-bottom:8px; font-weight:700; color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">Filter by BTS Location</label>
+                            <select class="olt-bts-select" id="olt-bts-select" onchange="filterOltIps()">
+                                <option value="all">All BTS Locations</option>
+                                <option value="Malek Mansion BTS">Malek Mansion BTS</option>
+                                <option value="Dilkusha BTS">Dilkusha BTS</option>
+                                <option value="Jatrabari BTS">Jatrabari BTS</option>
+                                <option value="Wari BTS">Wari BTS</option>
+                                <option value="Segunbagicha BTS">Segunbagicha BTS</option>
+                                <option value="Eskaton BTS">Eskaton BTS</option>
+                                <option value="Imamganj BTS">Imamganj BTS</option>
+                                <option value="Shahjahanpur BTS">Shahjahanpur BTS</option>
+                            </select>
+                        </div>
+                        <table class="olt-table">
+                            <thead>
+                                <tr>
+                                    <th>OLT Name</th>
+                                    <th>OLT IP</th>
+                                    <th>Uplink Port</th>
+                                </tr>
+                            </thead>
+                            <tbody id="olt-ip-table-body">
+                                <tr data-bts="Malek Mansion BTS">
+                                    <td data-label="OLT Name">Malek_CDATA_01</td>
+                                    <td data-label="OLT IP">10.49.10.162</td>
+                                    <td data-label="Uplink Port">100.64.167.14 [Eth1/31]</td>
+                                </tr>
+                                <tr data-bts="Malek Mansion BTS">
+                                    <td data-label="OLT Name">Malek_VSOL_02</td>
+                                    <td data-label="OLT IP">10.49.10.166</td>
+                                    <td data-label="Uplink Port">100.64.167.14 [Eth1/7]</td>
+                                </tr>
+                                <tr data-bts="Malek Mansion BTS">
+                                    <td data-label="OLT Name">Malek_ATOP_03</td>
+                                    <td data-label="OLT IP">10.49.15.138</td>
+                                    <td data-label="Uplink Port">100.64.167.14 [Eth1/13]</td>
+                                </tr>
+                                <tr data-bts="Malek Mansion BTS">
+                                    <td data-label="OLT Name">Malek_VSOL_04</td>
+                                    <td data-label="OLT IP">10.49.15.126</td>
+                                    <td data-label="Uplink Port">100.64.167.14 [Eth1/8]</td>
+                                </tr>
+                                <tr data-bts="Dilkusha BTS">
+                                    <td data-label="OLT Name">Dilkusha_CDATA_01</td>
+                                    <td data-label="OLT IP">10.49.8.26</td>
+                                    <td data-label="Uplink Port">10.48.2.82 [Gi0/6]</td>
+                                </tr>
+                                <tr data-bts="Jatrabari BTS">
+                                    <td data-label="OLT Name">Jatrabari_ATOP_01</td>
+                                    <td data-label="OLT IP">10.49.9.62</td>
+                                    <td data-label="Uplink Port">100.64.168.58 [GE0/0/15]</td>
+                                </tr>
+                                <tr data-bts="Wari BTS">
+                                    <td data-label="OLT Name">Wari_CDATA_01</td>
+                                    <td data-label="OLT IP">10.49.8.84</td>
+                                    <td data-label="Uplink Port">100.64.168.66 [GE0/0/2]</td>
+                                </tr>
+                                <tr data-bts="Wari BTS">
+                                    <td data-label="OLT Name">Wari_ATOP_02</td>
+                                    <td data-label="OLT IP">10.49.8.85</td>
+                                    <td data-label="Uplink Port">100.64.168.66 [XGE0/0/2]</td>
+                                </tr>
+                                <tr data-bts="Segunbagicha BTS">
+                                    <td data-label="OLT Name">Segun_CDATA_01</td>
+                                    <td data-label="OLT IP">10.49.10.130</td>
+                                    <td data-label="Uplink Port">10.66.9.250 [Eth1/29]</td>
+                                </tr>
+                                <tr data-bts="Segunbagicha BTS">
+                                    <td data-label="OLT Name">Segun_CDATA_02</td>
+                                    <td data-label="OLT IP">10.49.10.131</td>
+                                    <td data-label="Uplink Port">10.66.9.250 [Eth1/43]</td>
+                                </tr>
+                                <tr data-bts="Segunbagicha BTS">
+                                    <td data-label="OLT Name">Segun_CDATA_03</td>
+                                    <td data-label="OLT IP">10.49.10.132</td>
+                                    <td data-label="Uplink Port">10.66.9.250 [Eth1/33]</td>
+                                </tr>
+                                <tr data-bts="Segunbagicha BTS">
+                                    <td data-label="OLT Name">Segun_CDATA_18</td>
+                                    <td data-label="OLT IP">10.49.10.150</td>
+                                    <td data-label="Uplink Port">10.66.9.250 [Eth1/27]</td>
+                                </tr>
+                                <tr data-bts="Segunbagicha BTS">
+                                    <td data-label="OLT Name">Segun_CDATA_19</td>
+                                    <td data-label="OLT IP">10.49.10.151</td>
+                                    <td data-label="Uplink Port">10.66.9.250 [Eth1/28]</td>
+                                </tr>
+                                <tr data-bts="Segunbagicha BTS">
+                                    <td data-label="OLT Name">Segun_CDATA_20</td>
+                                    <td data-label="OLT IP">10.49.10.152</td>
+                                    <td data-label="Uplink Port">10.66.9.250 [Eth1/32]</td>
+                                </tr>
+                                <tr data-bts="Eskaton BTS">
+                                    <td data-label="OLT Name">Eskaton_CDATA_01</td>
+                                    <td data-label="OLT IP">10.49.10.172</td>
+                                    <td data-label="Uplink Port">10.66.1.250 [Eth1/18]</td>
+                                </tr>
+                                <tr data-bts="Eskaton BTS">
+                                    <td data-label="OLT Name">Eskaton_CDATA_02</td>
+                                    <td data-label="OLT IP">10.49.10.171</td>
+                                    <td data-label="Uplink Port">10.66.1.250 [Eth1/21]</td>
+                                </tr>
+                                <tr data-bts="Eskaton BTS">
+                                    <td data-label="OLT Name">Eskaton_CDATA_03</td>
+                                    <td data-label="OLT IP">10.49.10.173</td>
+                                    <td data-label="Uplink Port">10.66.1.250 [Eth1/19]</td>
+                                </tr>
+                                <tr data-bts="Imamganj BTS">
+                                    <td data-label="OLT Name">Imamgonj_VSOL_01</td>
+                                    <td data-label="OLT IP">10.49.8.94</td>
+                                    <td data-label="Uplink Port">10.66.61.2 [Gi0/42]</td>
+                                </tr>
+                                <tr data-bts="Imamganj BTS">
+                                    <td data-label="OLT Name">Imamgonj_UTS_03</td>
+                                    <td data-label="OLT IP">10.49.8.91</td>
+                                    <td data-label="Uplink Port">10.66.61.2 [Gi0/52]</td>
+                                </tr>
+                                <tr data-bts="Shahjahanpur BTS">
+                                    <td data-label="OLT Name">Shahjhnpur_CDTA_1</td>
+                                    <td data-label="OLT IP">10.49.11.254</td>
+                                    <td data-label="Uplink Port">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CDATA GPON Content -->
+                <div id="cdata_troubleshoot" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">CDATA GPON Troubleshooting</h2>
+                        </div>
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="cdata_troubleshoot_search" placeholder="Search commands...">
+                        </div>
+                        <p>ONU Discover check:</p>
+                        <code>(config-interface-gpon-0/0)# show ont autofind all
 (config-interface-gpon-0/0)# show ont autofind 1 all</code>
-                            <p>ONU configuration Check:</p>
-                            <code>(config-interface-gpon-0/0)# show ont info 1 1
+                        <p>ONU configuration Check:</p>
+                        <code>(config-interface-gpon-0/0)# show ont info 1 1
 (config)# show current-config section ont 0/0 2 5</code>
-                            <p>ONU Laser check:</p>
-                            <code>(config-interface-gpon-0/0)# show ont optical-info 1 1</code>
-                            <p>ONU Delete:</p>
-                            <code>(config-interface-gpon-0/0)# ont delete 1 28</code>
-                            <p>MAC from ONU port</p>
-                            <code>(config-interface-gpon-0/0)# show ont port learned-mac 1 1 eth 4</code>
-                            <p>ONU Reboot</p>
-                            <code>(config-interface-gpon-0/0)# ont reboot 1 3</code>
-                            <p>Line Profile check</p>
-                            <code>(config)# show ont-lineprofile gpon profile-id 5</code>
-                            <p>Show all ONU at OLT</p>
-                            <code>(config-interface-gpon-0/0)# show ont info all</code>
-                            <p>Rate-Limit UP/Down</p>
-                            <code>(config-interface-gpon-0/0)#ont port car 2 14 eth 3 inbound 60 outbound 60
+                        <p>ONU Laser check:</p>
+                        <code>(config-interface-gpon-0/0)# show ont optical-info 1 1</code>
+                        <p>ONU Delete:</p>
+                        <code>(config-interface-gpon-0/0)# ont delete 1 28</code>
+                        <p>MAC from ONU port</p>
+                        <code>(config-interface-gpon-0/0)# show ont port learned-mac 1 1 eth 4</code>
+                        <p>ONU Reboot</p>
+                        <code>(config-interface-gpon-0/0)# ont reboot 1 3</code>
+                        <p>Line Profile check</p>
+                        <code>(config)# show ont-lineprofile gpon profile-id 5</code>
+                        <p>Show all ONU at OLT</p>
+                        <code>(config-interface-gpon-0/0)# show ont info all</code>
+                        <p>Rate-Limit UP/Down</p>
+                        <code>(config-interface-gpon-0/0)#ont port car 2 14 eth 3 inbound 60 outbound 60
 (config-interface-gpon-0/0)#no ont port car 1 2 eth 1 inbound outbound</code>
-                            <p>ONU Port VLAN/ Status Check</p>
-                            <code>(config-interface-gpon-0/0)# show ont port attribute 15 13 eth all
+                        <p>ONU Port VLAN/ Status Check</p>
+                        <code>(config-interface-gpon-0/0)# show ont port attribute 15 13 eth all
 (config-interface-gpon-0/0)# show ont port state 15 13 eth all
 (config-interface-gpon-0/0)# show ont wan config 15 9</code>
-                            <p>ONU Port BW check</p>
-                            <code>(config-interface-gpon-0/0)# show ont port car 1 1 eth all</code>
-                            <p>ONU Lan port shut /no shut:</p>
-                            <code>(config-interface-gpon-0/0)# ont port attribute 1 1 eth 1 operational-state on
+                        <p>ONU Port BW check</p>
+                        <code>(config-interface-gpon-0/0)# show ont port car 1 1 eth all</code>
+                        <p>ONU Lan port shut /no shut:</p>
+                        <code>(config-interface-gpon-0/0)# ont port attribute 1 1 eth 1 operational-state on
 (config-interface-gpon-0/0)# ont port attribute 1 1 eth 1 operational-state off</code>
-                            <p>Check ONU service port</p>
-                            <code>(config)# show service-port gpon 0/0 port 1 ont 1</code>
-                            <p>Mac Static</p>
-                            <code>(config)# mac-address static port xge 0/0/1 vlan 295 B8:D6:F6:11:46:36</code>
-                            <p>Pon TX power/Temp Check</p>
-                            <code>(config-interface-gpon-0/0)# show port ddm-info 2
+                        <p>Check ONU service port</p>
+                        <code>(config)# show service-port gpon 0/0 port 1 ont 1</code>
+                        <p>Mac Static</p>
+                        <code>(config)# mac-address static port xge 0/0/1 vlan 295 B8:D6:F6:11:46:36</code>
+                        <p>Pon TX power/Temp Check</p>
+                        <code>(config-interface-gpon-0/0)# show port ddm-info 2
 (config-interface-gpon-0/0)#show temperature</code>
-                            <p>PON Shut/No-Shut</p>
-                            <code>(config-interface-gpon-0/0)# shutdown 3
+                        <p>PON Shut/No-Shut</p>
+                        <code>(config-interface-gpon-0/0)# shutdown 3
 (config-interface-gpon-0/0)# no shutdown 3</code>
+                    </div>
+                </div>
+
+                <div id="cdata_installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">CDATA GPON Installation</h2>
                         </div>
-                        
-                        <!-- Installation Content -->
-                        <div id="cdata_installation" class="inner-tab-content">
-                            <div class="search-bar">
-                                <input type="text" id="cdata_installation_search" placeholder="Search CDATA GPON Installation commands...">
-                            </div>
-                            <p>VLAN Check:</p>
-                            <code>(config)# show vlan all
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="cdata_installation_search" placeholder="Search installation commands...">
+                        </div>
+                        <p>VLAN Check:</p>
+                        <code>(config)# show vlan all
 (config)# show vlan 100</code>
-                            <p>VLAN Create:</p>
-                            <code>(config)# vlan 191</code>
-                            <p>VLAN Tagg on Uplink port:</p>
-                            <p>For [uplink 1 G]</p>
-                            <code>Malek_GPON-01(config)# interface ge 0/0
+                        <p>VLAN Create:</p>
+                        <code>(config)# vlan 191</code>
+                        <p>VLAN Tagg on Uplink port:</p>
+                        <p>For [uplink 1 G]</p>
+                        <code>Malek_GPON-01(config)# interface ge 0/0
 Malek_GPON-01(config-interface-ge-0/0)# vlan trunk 1 123</code>
-                            <p>For [uplink 10 G]</p>
-                            <code>Malek_GPON-01(config)# interface xge 0/0
+                        <p>For [uplink 10 G]</p>
+                        <code>Malek_GPON-01(config)# interface xge 0/0
 Malek_GPON-01(config-interface-xge-0/0)# vlan trunk 1 123</code>
-                            <p>Line Profile Create:</p>
-                            <code>(config)# ont-lineprofile gpon profile-id 489
+                        <p>Line Profile Create:</p>
+                        <code>(config)# ont-lineprofile gpon profile-id 489
 (config-ont-lineprofile-489)# tcont 1 dba-profile-id 30
 (config-ont-lineprofile-489)# gem add 1 tcont 1
 (config-ont-lineprofile-489)# gem mapping 1 1 vlan 489
 (config-ont-lineprofile-489)# mapping-mode vlan
 (config-ont-lineprofile-489)# commit
 (config-ont-lineprofile-489)# exit</code>
-                            <p>Enter a VLAN under a specific Line-profile:</p>
-                            <code>ont-lineprofile gpon profile-id 76
+                        <p>Enter a VLAN under a specific Line-profile:</p>
+                        <code>ont-lineprofile gpon profile-id 76
 tcont 1 dba-profile-id 30
 gem add 1 tcont 1
 gem mapping 1 2 vlan 76
 mapping-mode vlan
 commit
 exit</code>
-                            <p>Enter VLAN ONU 2nd port:</p>
-                            <code>(config)# interface gpon 0/0
+                        <p>Enter VLAN ONU 2nd port:</p>
+                        <code>(config)# interface gpon 0/0
 (config-interface-gpon-0/0)# ont port attribute 9 9 eth 2 operational-state on
 (config-interface-gpon-0/0)# ont port native-vlan 9 9 eth 2 vlan 1260 priority 0
 (config-interface-gpon-0/0)# exit
 (config)# save
 (config)#service-port autoindex vlan 1260 gpon 0/0 port 9 ont 9 gemport 1 multi-service user-vlan 1260 tag-action transparent</code>
-                        </div>
                     </div>
                 </div>
 
-                <!-- VSOL & ATOP Sub-tab -->
-                <div id="vsol_atop" class="sub-tab-content">
-                    <div class="inner-tab-container">
-                        <div class="inner-tab-buttons">
-                            <button class="inner-tab-button active" onclick="openInnerTab(event, 'vsol_troubleshoot', 'vsol_atop')">Troubleshooting</button>
-                            <button class="inner-tab-button" onclick="openInnerTab(event, 'vsol_installation', 'vsol_atop')">Installation</button>
+                <!-- VSOL & ATOP Content -->
+                <div id="vsol_troubleshoot" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">VSOL & ATOP Troubleshooting</h2>
                         </div>
-                        
-                        <!-- Troubleshooting Content -->
-                        <div id="vsol_troubleshoot" class="inner-tab-content active">
-                            <div class="search-bar">
-                                <input type="text" id="vsol_troubleshoot_search" placeholder="Search VSOL & ATOP Troubleshooting commands...">
-                            </div>
-                            <p>ONU Discover Check:</p>
-                            <code>(config-pon-0/1)# show onu auto-find</code>
-                            <p>ONU Config Check:</p>
-                            <code>(config-pon-0/1)# show running-config onu 10</code>
-                            <p>Free ONU ID check:</p>
-                            <code>(config-pon-0/1)# show onu state</code>
-                            <p>ONU Reboot:</p>
-                            <code>(config-pon-0/2)# onu 26 reboot</code>
-                            <p>ONU Port learnt mac:</p>
-                            <code>(config)# show mac address-table pon 1 2</code>
-                            <p>ONU Laser check:</p>
-                            <code>(config-pon-0/1)# show onu 2 optical_info</code>
-                            <p>Profile Line check:</p>
-                            <code>(config)# show profile line id 5</code>
-                            <p>ONU Eth port status check:</p>
-                            <code>(config-pon-0/3)# show onu 24 eth 1</code>
-                            <p>All ONU Laser check:</p>
-                            <code>(config-pon-0/3)# show pon onu all rx-power</code>
-                            <p>Rate-limit Omit:</p>
-                            <code>(config-pon-0/3)#no ont port car 15 19 eth 1 inbound
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="vsol_troubleshoot_search" placeholder="Search commands...">
+                        </div>
+                        <p>ONU Discover Check:</p>
+                        <code>(config-pon-0/1)# show onu auto-find</code>
+                        <p>ONU Config Check:</p>
+                        <code>(config-pon-0/1)# show running-config onu 10</code>
+                        <p>Free ONU ID check:</p>
+                        <code>(config-pon-0/1)# show onu state</code>
+                        <p>ONU Reboot:</p>
+                        <code>(config-pon-0/2)# onu 26 reboot</code>
+                        <p>ONU Port learnt mac:</p>
+                        <code>(config)# show mac address-table pon 1 2</code>
+                        <p>ONU Laser check:</p>
+                        <code>(config-pon-0/1)# show onu 2 optical_info</code>
+                        <p>Profile Line check:</p>
+                        <code>(config)# show profile line id 5</code>
+                        <p>ONU Eth port status check:</p>
+                        <code>(config-pon-0/3)# show onu 24 eth 1</code>
+                        <p>All ONU Laser check:</p>
+                        <code>(config-pon-0/3)# show pon onu all rx-power</code>
+                        <p>Rate-limit Omit:</p>
+                        <code>(config-pon-0/3)#no ont port car 15 19 eth 1 inbound
 (config-pon-0/3)#no ont port car 15 19 eth 1 outbound</code>
-                            <p>To Save:</p>
-                            <code>(config)# write</code>
-                            <p>ONU Disable / Enable:</p>
-                            <code>(config-pon-0/2)# onu 26 enable
+                        <p>To Save:</p>
+                        <code>(config)# write</code>
+                        <p>ONU Disable / Enable:</p>
+                        <code>(config-pon-0/2)# onu 26 enable
 (config-pon-0/2)# onu 26 disable</code>
-                            <p>ONU Lock/ Unlock:</p>
-                            <code>(config-pon-0/2)# onu 26 deactivate
+                        <p>ONU Lock/ Unlock:</p>
+                        <code>(config-pon-0/2)# onu 26 deactivate
 (config-pon-0/2)# onu 26 activate</code>
-                            <p>ONU Lock / Unlock (ONU Port):</p>
-                            <code>(config-pon-0/2)# onu 26 eth 1 state disable
+                        <p>ONU Lock / Unlock (ONU Port):</p>
+                        <code>(config-pon-0/2)# onu 26 eth 1 state disable
 (config-pon-0/2)# onu 26 eth 1 state enable</code>
-                            <p>Mac Static:</p>
-                            <code>(config)# mac address-table static vlan 71 80db:1702:496d interface gigabitethernet 0/5
+                        <p>Mac Static:</p>
+                        <code>(config)# mac address-table static vlan 71 80db:1702:496d interface gigabitethernet 0/5
 (config)#mac address-table static vlan 59 0002-17dc-d81b interface gigabitethernet 0/6</code>
-                            <p>Pon Shut / No Shut:</p>
-                            <code>(config-pon-0/1)# shutdown
+                        <p>Pon Shut / No Shut:</p>
+                        <code>(config-pon-0/1)# shutdown
 (config-pon-0/1)# no shutdown</code>
-                            <p>PON TX Power check/Temperature:</p>
-                            <code>(config-pon-0/1)# show pon optical transceiver</code>
-                            <p>PON / Uplink port traffic check:</p>
-                            <code>(config-if-ge0/5)# show interface</code>
-                            <p>ONU Distance check from OLT:</p>
-                            <code>(config-pon-0/3)# show onu 25 distance</code>
+                        <p>PON TX Power check/Temperature:</p>
+                        <code>(config-pon-0/1)# show pon optical transceiver</code>
+                        <p>PON / Uplink port traffic check:</p>
+                        <code>(config-if-ge0/5)# show interface</code>
+                        <p>ONU Distance check from OLT:</p>
+                        <code>(config-pon-0/3)# show onu 25 distance</code>
+                    </div>
+                </div>
+
+                <div id="vsol_installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">VSOL & ATOP Installation</h2>
                         </div>
-                        
-                        <!-- Installation Content -->
-                        <div id="vsol_installation" class="inner-tab-content">
-                            <div class="search-bar">
-                                <input type="text" id="vsol_installation_search" placeholder="Search VSOL & ATOP Installation commands...">
-                            </div>
-                            <p>Show Vlan:</p>
-                            <code>(config)# show vlan 500</code>
-                            <p>Vlan Create:</p>
-                            <code>(config)# vlan 500</code>
-                            <p>All interface check:</p>
-                            <code>(config)# show interface brief</code>
-                            <p>Vlan Add in Uplink port:</p>
-                            <code>(config)# interface gigabitethernet 0/5
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="vsol_installation_search" placeholder="Search installation commands...">
+                        </div>
+                        <p>Show Vlan:</p>
+                        <code>(config)# show vlan 500</code>
+                        <p>Vlan Create:</p>
+                        <code>(config)# vlan 500</code>
+                        <p>All interface check:</p>
+                        <code>(config)# show interface brief</code>
+                        <p>Vlan Add in Uplink port:</p>
+                        <code>(config)# interface gigabitethernet 0/5
 (config-if-ge0/5)# switchport mode trunk
 (config-if-ge0/5)# switchport trunk vlan 500
 (config-if-ge0/5)# exit</code>
-                            <p>DBA Profile Check:</p>
-                            <code>(config)# show profile dba</code>
-                            <p>DBA Profile Create:</p>
-                            <code>profile dba id 1 name MAX_BW
+                        <p>DBA Profile Check:</p>
+                        <code>(config)# show profile dba</code>
+                        <p>DBA Profile Create:</p>
+                        <code>profile dba id 1 name MAX_BW
 type 4 maximum 307200 Kbps
 commit</code>
-                            <p>Line-Profile Create:</p>
-                            <code>(config)# profile line id 782
+                        <p>Line-Profile Create:</p>
+                        <code>(config)# profile line id 782
 (profile-line:782)#tcont 1 dba MAX_BW
 (profile-line:782)#gemport 1 tcont 1
 (profile-line:782)#service 1 gemport 1 vlan 782
 (profile-line:782)#service-port 1 gemport 1 uservlan 782 vlan 782
 (profile-line:782)#commit
 (profile-line:782)# exit</code>
-                            <p>Line-Profile Create with multiple Vlan:</p>
-                            <code>(config)# profile line id 14
+                        <p>Line-Profile Create with multiple Vlan:</p>
+                        <code>(config)# profile line id 14
 (profile-line:14)# tcont 1 dba MAX_BW
 (profile-line:14)# gemport 1 tcont 1
 (profile-line:14)# service 1 gemport 1 vlan 14,620
@@ -831,394 +907,308 @@ commit</code>
 (profile-line:14)# service-port 2 gemport 1 uservlan 620 vlan 620
 (profile-line:14)# commit
 (profile-line:14)# exit</code>
-                        </div>
                     </div>
                 </div>
 
-                <!-- GPON 8 Port Sub-tab -->
-                <div id="gpon_8_port" class="sub-tab-content">
-                    <div class="inner-tab-container">
-                        <div class="inner-tab-buttons">
-                            <button class="inner-tab-button active" onclick="openInnerTab(event, 'gpon8_troubleshoot', 'gpon_8_port')">Troubleshooting</button>
-                            <button class="inner-tab-button" onclick="openInnerTab(event, 'gpon8_installation', 'gpon_8_port')">Installation</button>
+                <!-- GPON 8 Port Content -->
+                <div id="gpon8_troubleshoot" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">GPON 8 Port Troubleshooting</h2>
                         </div>
-                        
-                        <!-- Troubleshooting Content -->
-                        <div id="gpon8_troubleshoot" class="inner-tab-content active">
-                            <div class="search-bar">
-                                <input type="text" id="gpon8_troubleshoot_search" placeholder="Search GPON 8 Port Troubleshooting commands...">
-                            </div>
-                            <p>ONU Discover:</p>
-                            <code>(config-interface-gpon)# show ont autofind all</code>
-                            <p>ALL ONU Details:</p>
-                            <code>(config)# show saved-config</code>
-                            <p>Specific ONU Details:</p>
-                            <code>(config-interface-gpon)# show ont info 2 2</code>
-                            <p>ONU port check:</p>
-                            <code>(config-interface-gpon)# show ont port attribute 2 2 eth all</code>
-                            <p>ONU Port Details:</p>
-                            <code>(config-interface-gpon)# show ont port car 2 2 eth all</code>
-                            <p>MAC from ONU port:</p>
-                            <code>(config)# show mac-address vlan 999
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="gpon8_troubleshoot_search" placeholder="Search commands...">
+                        </div>
+                        <p>ONU Discover:</p>
+                        <code>(config-interface-gpon)# show ont autofind all</code>
+                        <p>ALL ONU Details:</p>
+                        <code>(config)# show saved-config</code>
+                        <p>Specific ONU Details:</p>
+                        <code>(config-interface-gpon)# show ont info 2 2</code>
+                        <p>ONU port check:</p>
+                        <code>(config-interface-gpon)# show ont port attribute 2 2 eth all</code>
+                        <p>ONU Port Details:</p>
+                        <code>(config-interface-gpon)# show ont port car 2 2 eth all</code>
+                        <p>MAC from ONU port:</p>
+                        <code>(config)# show mac-address vlan 999
 (config-interface-gpon)# show ont port learned-mac 2 9 eth 2</code>
-                            <p>ONU Port BW:</p>
-                            <code>(config-interface-gpon)# ont port car 2 2 eth 1 inbound 100 outbound 100
+                        <p>ONU Port BW:</p>
+                        <code>(config-interface-gpon)# ont port car 2 2 eth 1 inbound 100 outbound 100
 (config-interface-gpon)# ont port car 2 2 eth 2 inbound 100 outbound 100</code>
-                            <p>ONU Delete:</p>
-                            <code>(config-interface-gpon)# ont delete 2 2</code>
-                            <p>Show all onu of specific pon port:</p>
-                            <code>Dilkusha_GPON-01(config)# show ont info 2 all</code>
-                            <p>Show Line Profile:</p>
-                            <code>(config)# show ont-lineprofile profile-id 512</code>
-                            <p>PON Shut / No-Shut:</p>
-                            <code>(config-interface-gpon)# shutdown 2
+                        <p>ONU Delete:</p>
+                        <code>(config-interface-gpon)# ont delete 2 2</code>
+                        <p>Show all onu of specific pon port:</p>
+                        <code>Dilkusha_GPON-01(config)# show ont info 2 all</code>
+                        <p>Show Line Profile:</p>
+                        <code>(config)# show ont-lineprofile profile-id 512</code>
+                        <p>PON Shut / No-Shut:</p>
+                        <code>(config-interface-gpon)# shutdown 2
 (config-interface-gpon)# no shutdown 2</code>
+                    </div>
+                </div>
+
+                <div id="gpon8_installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">GPON 8 Port Installation</h2>
                         </div>
-                        
-                        <!-- Installation Content -->
-                        <div id="gpon8_installation" class="inner-tab-content">
-                            <div class="search-bar">
-                                <input type="text" id="gpon8_installation_search" placeholder="Search GPON 8 Port Installation commands...">
-                            </div>
-                            <p>VLAN Add:</p>
-                            <code>(config)#vlan 748</code>
-                            <p>VLAN Tagg on Uplink port:</p>
-                            <code>Dilkusha_GPON-01(config)# interface ge
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="gpon8_installation_search" placeholder="Search installation commands...">
+                        </div>
+                        <p>VLAN Add:</p>
+                        <code>(config)#vlan 748</code>
+                        <p>VLAN Tagg on Uplink port:</p>
+                        <code>Dilkusha_GPON-01(config)# interface ge
 Dilkusha_GPON-01(config-interface-ge)# vlan trunk 1 748</code>
-                            <code>Dilkusha_GPON-01(config)# interface xge
+                        <code>Dilkusha_GPON-01(config)# interface xge
 Dilkusha_GPON-01(config-interface-xge)# vlan trunk 1 748</code>
-                            <code>(config-interface-gpon)# vlan mode 1-8 trunk
+                        <code>(config-interface-gpon)# vlan mode 1-8 trunk
 (config-interface-gpon)# vlan trunk 1-8 748</code>
-                            <p>Line Profile create:</p>
-                            <code>ont-lineprofile  profile-id 191
+                        <p>Line Profile create:</p>
+                        <code>ont-lineprofile  profile-id 191
 tcont 1 dba-profile-id 30
 gem add 1 tcont 1
 gem mapping 1 1 vlan 191
 mapping-mode vlan
 commit
 exit</code>
-                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- EPON OLT Tab -->
-        <div id="epon_olt" class="tab-content">
-            <div class="sub-tab-container">
-                <div class="sub-tab-buttons">
-                    <button class="sub-tab-button active" onclick="openSubTab(event, 'epon_utstar', 'epon_olt')">EPON UTSTAR</button>
-                    <button class="sub-tab-button" onclick="openSubTab(event, 'epon_phyhome', 'epon_olt')">EPON PHYHOME</button>
-                    <button class="sub-tab-button" onclick="openSubTab(event, 'epon_fhnet', 'epon_olt')">EPON FHNET</button>
-                </div>
-                
-                <!-- EPON UTSTAR Sub-tab -->
-                <div id="epon_utstar" class="sub-tab-content active">
-                    <div class="inner-tab-container">
-                        <div class="inner-tab-buttons">
-                            <button class="inner-tab-button active" onclick="openInnerTab(event, 'utstar_troubleshoot', 'epon_utstar')">Troubleshooting</button>
-                            <button class="inner-tab-button" onclick="openInnerTab(event, 'utstar_installation', 'epon_utstar')">Installation</button>
+                <!-- EPON UTSTAR Content -->
+                <div id="utstar_troubleshoot" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">EPON UTSTAR Troubleshooting</h2>
                         </div>
-                        
-                        <!-- Troubleshooting Content -->
-                        <div id="utstar_troubleshoot" class="inner-tab-content active">
-                            <div class="search-bar">
-                                <input type="text" id="utstar_troubleshoot_search" placeholder="Search EPON UTSTAR Troubleshooting commands...">
-                            </div>
-                            <p>Find unbound ONU:</p>
-                            <code>(config-t)# show interface epon-olt 1/4 onu-unbound</code>
-                            <p>ONU Status check:</p>
-                            <code>(config-t)# show interface epon-olt 1/1 onu 63 summary
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="utstar_troubleshoot_search" placeholder="Search commands...">
+                        </div>
+                        <p>Find unbound ONU:</p>
+                        <code>(config-t)# show interface epon-olt 1/4 onu-unbound</code>
+                        <p>ONU Status check:</p>
+                        <code>(config-t)# show interface epon-olt 1/1 onu 63 summary
 (config-t)# show interface epon-olt 1/1 onu 63 brief</code>
-                            <p>ONU Configuration Check:</p>
-                            <code>(config-t)# show configuration  interface epon-olt 1/1 onu 56</code>
-                            <p>ONU Lan port status check:</p>
-                            <code>(config-t-if-olt-1/4)# show interface epon-olt 1/1 onu 63 port 1 remote-mgmt</code>
-                            <p>ONU port learnt mac check:</p>
-                            <code>(config-t-if-olt-1/4)# show interface epon-olt 1/4 onu 13 mac-address-table</code>
-                            <p>ONU Delete:</p>
-                            <code>(config-t-if-olt-1/4)# no onu 13</code>
-                            <p>ONU Laser check:</p>
-                            <code>(config-t-if-olt-1/1)# show interface epon-olt 1/1 onu 12 opm-diagnisos</code>
-                            <p>ONU Rate Limit:</p>
-                            <code>(config-if-onu-1/1/37)# dba-sla upstream maximum-bandwidth 61440 Kbps
+                        <p>ONU Configuration Check:</p>
+                        <code>(config-t)# show configuration  interface epon-olt 1/1 onu 56</code>
+                        <p>ONU Lan port status check:</p>
+                        <code>(config-t-if-olt-1/4)# show interface epon-olt 1/1 onu 63 port 1 remote-mgmt</code>
+                        <p>ONU port learnt mac check:</p>
+                        <code>(config-t-if-olt-1/4)# show interface epon-olt 1/4 onu 13 mac-address-table</code>
+                        <p>ONU Delete:</p>
+                        <code>(config-t-if-olt-1/4)# no onu 13</code>
+                        <p>ONU Laser check:</p>
+                        <code>(config-t-if-olt-1/1)# show interface epon-olt 1/1 onu 12 opm-diagnisos</code>
+                        <p>ONU Rate Limit:</p>
+                        <code>(config-if-onu-1/1/37)# dba-sla upstream maximum-bandwidth 61440 Kbps
 (config-if-onu-1/1/37)# dba-sla downstream  maximum-bandwidth 61440 Kbps</code>
-                            <p>Configuration Save:</p>
-                            <code>telnet@Malek_VSOL# conf m
+                        <p>Configuration Save:</p>
+                        <code>telnet@Malek_VSOL# conf m
 telnet@Malek_VSOL# (config-mgmt)# save</code>
-                            <p>PON shut / unshut:</p>
-                            <code>(config-t)# interface epon-olt 1/2
+                        <p>PON shut / unshut:</p>
+                        <code>(config-t)# interface epon-olt 1/2
 (config-t-if-olt-1/2)#shutdown</code>
-                            <p>PON Up/Down Check:</p>
-                            <code>(config-t)# show interface epon-olt 1/1 onu brief</code>
-                            <p>OLT Uplink port status check:</p>
-                            <code>(config-t)# show interface giga-ethernet 3/1 switchport</code>
+                        <p>PON Up/Down Check:</p>
+                        <code>(config-t)# show interface epon-olt 1/1 onu brief</code>
+                        <p>OLT Uplink port status check:</p>
+                        <code>(config-t)# show interface giga-ethernet 3/1 switchport</code>
+                    </div>
+                </div>
+
+                <div id="utstar_installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">EPON UTSTAR Installation</h2>
                         </div>
-                        
-                        <!-- Installation Content -->
-                        <div id="utstar_installation" class="inner-tab-content">
-                            <div class="search-bar">
-                                <input type="text" id="utstar_installation_search" placeholder="Search EPON UTSTAR Installation commands...">
-                            </div>
-                            <p>Show Vlan:</p>
-                            <code>(config-t)# show vlan 291</code>
-                            <p>Vlan Create:</p>
-                            <code>(config-t)# vlan 291
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="utstar_installation_search" placeholder="Search installation commands...">
+                        </div>
+                        <p>Show Vlan:</p>
+                        <code>(config-t)# show vlan 291</code>
+                        <p>Vlan Create:</p>
+                        <code>(config-t)# vlan 291
 (config-t-vlan-291)# name Popular
 (config-t-vlan-291)# member ge1/1-4,ge2/1-4,ge3/1-4 tagged
 (config-t-vlan-291)# exit</code>
-                        </div>
                     </div>
                 </div>
 
-                <!-- EPON PHYHOME Sub-tab -->
-                <div id="epon_phyhome" class="sub-tab-content">
-                    <div class="inner-tab-container">
-                        <div class="inner-tab-buttons">
-                            <button class="inner-tab-button active" onclick="openInnerTab(event, 'phyhome_troubleshoot', 'epon_phyhome')">Troubleshooting</button>
-                            <button class="inner-tab-button" onclick="openInnerTab(event, 'phyhome_installation', 'epon_phyhome')">Installation</button>
+                <!-- EPON PHYHOME Content -->
+                <div id="phyhome_troubleshoot" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">EPON PHYHOME Troubleshooting</h2>
                         </div>
-                        
-                        <!-- Troubleshooting Content -->
-                        <div id="phyhome_troubleshoot" class="inner-tab-content active">
-                            <div class="search-bar">
-                                <input type="text" id="phyhome_troubleshoot_search" placeholder="Search EPON PHYHOME Troubleshooting commands...">
-                            </div>
-                            <p>Show All ONU in OLT:</p>
-                            <code>>ont
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="phyhome_troubleshoot_search" placeholder="Search commands...">
+                        </div>
+                        <p>Show All ONU in OLT:</p>
+                        <code>>ont
 ont# display ont-auth-info slotno 1</code>
-                            <p>ONU Configuration Check:</p>
-                            <code>service# display service info 2 2 9</code>
-                            <p>Delete ONU:</p>
-                            <code>ont\configure# ont-auth undo 1 1 6</code>
-                            <p>ONU Laser check:</p>
-                            <code>ont# display ont-optical-info 1 1 5</code>
-                            <p>ONU LAN Port Check:</p>
-                            <code>service# display onu-port-attribute 1 1 5</code>
-                            <p>ONU RESET:</p>
-                            <code>system\configure# reset 2 3 30</code>
-                            <p>OLT Mac Address Table:</p>
-                            <code>"fdb# display mac-table</code>
-                            <p>For Lock/delete ONU Service:</p>
-                            <code>service\configure# delete 2 4 43 1 service 1</code>
-                            <p>PON Shut/No shut:</p>
-                            <code>system\configure# pon off 1 1
+                        <p>ONU Configuration Check:</p>
+                        <code>service# display service info 2 2 9</code>
+                        <p>Delete ONU:</p>
+                        <code>ont\configure# ont-auth undo 1 1 6</code>
+                        <p>ONU Laser check:</p>
+                        <code>ont# display ont-optical-info 1 1 5</code>
+                        <p>ONU LAN Port Check:</p>
+                        <code>service# display onu-port-attribute 1 1 5</code>
+                        <p>ONU RESET:</p>
+                        <code>system\configure# reset 2 3 30</code>
+                        <p>OLT Mac Address Table:</p>
+                        <code>"fdb# display mac-table</code>
+                        <p>For Lock/delete ONU Service:</p>
+                        <code>service\configure# delete 2 4 43 1 service 1</code>
+                        <p>PON Shut/No shut:</p>
+                        <code>system\configure# pon off 1 1
 system\configure# pon on 1 1</code>
-                            <p>PON Status Check:</p>
-                            <code>system# display pon-state 2 2</code>
-                        </div>
-                        
-                        <!-- Installation Content -->
-                        <div id="phyhome_installation" class="inner-tab-content">
-                            <div class="search-bar">
-                                <input type="text" id="phyhome_installation_search" placeholder="Search EPON PHYHOME Installation commands...">
-                            </div>
-                            <p>Vlan Check:</p>
-                            <code>vlan# display vlan-database</code>
-                            <p>Vlan Create:</p>
-                            <code>vlan#vlan-database data Internet 428 6:1 tagged</code>
-                        </div>
+                        <p>PON Status Check:</p>
+                        <code>system# display pon-state 2 2</code>
                     </div>
                 </div>
 
-                <!-- EPON FHNET Sub-tab -->
-                <div id="epon_fhnet" class="sub-tab-content">
-                    <div class="inner-tab-container">
-                        <div class="inner-tab-buttons">
-                            <button class="inner-tab-button active" onclick="openInnerTab(event, 'fhnet_troubleshoot', 'epon_fhnet')">Troubleshooting</button>
-                            <button class="inner-tab-button" onclick="openInnerTab(event, 'fhnet_installation', 'epon_fhnet')">Installation</button>
+                <div id="phyhome_installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">EPON PHYHOME Installation</h2>
                         </div>
-                        
-                        <!-- Troubleshooting Content -->
-                        <div id="fhnet_troubleshoot" class="inner-tab-content active">
-                            <div class="search-bar">
-                                <input type="text" id="fhnet_troubleshoot_search" placeholder="Search EPON FHNET Troubleshooting commands...">
-                            </div>
-                            <p>ONU Discover (Auto Bind) & ONU status Check:</p>
-                            <code>(config)#show onu-status</code>
-                            <p>ALL interface status:</p>
-                            <code>(config)# show interface brief</code>
-                            <p>ONU Configuration check:</p>
-                            <code>(onu-0/1/2)#show running-config onumnt 0/1/2</code>
-                            <p>ONU Eth port status check:</p>
-                            <code>(onu-0/1/2)#show onu-interface ethernet 0/1</code>
-                            <p>ONU laser check:</p>
-                            <code>(onu-0/1/3)#show onu-opm-diagnosis</code>
-                            <p>ONU Reboot:</p>
-                            <code>(config)#onu 0/8/4
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="phyhome_installation_search" placeholder="Search installation commands...">
+                        </div>
+                        <p>Vlan Check:</p>
+                        <code>vlan# display vlan-database</code>
+                        <p>Vlan Create:</p>
+                        <code>vlan#vlan-database data Internet 428 6:1 tagged</code>
+                    </div>
+                </div>
+
+                <!-- EPON FHNET Content -->
+                <div id="fhnet_troubleshoot" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">EPON FHNET Troubleshooting</h2>
+                        </div>
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="fhnet_troubleshoot_search" placeholder="Search commands...">
+                        </div>
+                        <p>ONU Discover (Auto Bind) & ONU status Check:</p>
+                        <code>(config)#show onu-status</code>
+                        <p>ALL interface status:</p>
+                        <code>(config)# show interface brief</code>
+                        <p>ONU Configuration check:</p>
+                        <code>(onu-0/1/2)#show running-config onumnt 0/1/2</code>
+                        <p>ONU Eth port status check:</p>
+                        <code>(onu-0/1/2)#show onu-interface ethernet 0/1</code>
+                        <p>ONU laser check:</p>
+                        <code>(onu-0/1/3)#show onu-opm-diagnosis</code>
+                        <p>ONU Reboot:</p>
+                        <code>(config)#onu 0/8/4
 (onu-0/8/4)#onu-reboot</code>
-                            <p>PON shut / no shut:</p>
-                            <code>(config)#interface pon 0/8
+                        <p>PON shut / no shut:</p>
+                        <code>(config)#interface pon 0/8
 (config-if-pon-0/8)#shutdown
 (config-if-pon-0/8)#no shutdown</code>
-                            <p>PON Laser Check:</p>
-                            <code>(config-if-pon-0/1)#show opm option diagnosis</code>
-                            <p>SFP Laser Check:</p>
-                            <code>(config)#show interface sfp ethernet 0/5</code>
-                        </div>
-                        
-                        <!-- Installation Content -->
-                        <div id="fhnet_installation" class="inner-tab-content">
-                            <div class="search-bar">
-                                <input type="text" id="fhnet_installation_search" placeholder="Search EPON FHNET Installation commands...">
-                            </div>
-                            <p>Vlan Create:</p>
-                            <code>(config)# vlan 2000
-(config-if-vlan)#switchport all</code>
-                            <p>VLAN Check:</p>
-                            <code>(config)# show vlan
-(config)#show vlan 10</code>
-                            <p>Config Save:</p>
-                            <code>Malek_FH_Net_07# copy running-config startup-config</code>
-                        </div>
+                        <p>PON Laser Check:</p>
+                        <code>(config-if-pon-0/1)#show opm option diagnosis</code>
+                        <p>SFP Laser Check:</p>
+                        <code>(config)#show interface sfp ethernet 0/5</code>
                     </div>
                 </div>
+
+                <div id="fhnet_installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">EPON FHNET Installation</h2>
+                        </div>
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="fhnet_installation_search" placeholder="Search installation commands...">
+                        </div>
+                        <p>Vlan Create:</p>
+                        <code>(config)# vlan 2000
+(config-if-vlan)#switchport all</code>
+                        <p>VLAN Check:</p>
+                        <code>(config)# show vlan
+(config)#show vlan 10</code>
+                        <p>Config Save:</p>
+                        <code>Malek_FH_Net_07# copy running-config startup-config</code>
+                    </div>
+                </div>
+
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
-        function openTab(evt, tabName) {
-            let i, tabcontent, tabbuttons;
-
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove("active");
-            }
-
-            tabbuttons = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tabbuttons.length; i++) {
-                tabbuttons[i].classList.remove("active");
-            }
-
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-
-            if (tabName === 'olt_ips') {
-                document.getElementById('olt-bts-select').value = 'all';
-                filterOltIps();
-            }
-
-            // Reset all sub-tabs to first one
-            const subTabContainers = document.querySelectorAll('.sub-tab-container');
-            subTabContainers.forEach(container => {
-                const subTabButtons = container.querySelectorAll('.sub-tab-button');
-                const subTabContents = container.querySelectorAll('.sub-tab-content');
-                
-                if (subTabButtons.length > 0) {
-                    subTabButtons.forEach(btn => btn.classList.remove('active'));
-                    subTabContents.forEach(content => content.classList.remove('active'));
-                    
-                    subTabButtons[0].classList.add('active');
-                    subTabContents[0].classList.add('active');
-                    
-                    // Reset inner tabs to first one (Troubleshooting)
-                    const innerContainers = container.querySelectorAll('.inner-tab-container');
-                    innerContainers.forEach(innerContainer => {
-                        const innerButtons = innerContainer.querySelectorAll('.inner-tab-button');
-                        const innerContents = innerContainer.querySelectorAll('.inner-tab-content');
-                        
-                        if (innerButtons.length > 0) {
-                            innerButtons.forEach(btn => btn.classList.remove('active'));
-                            innerContents.forEach(content => content.classList.remove('active'));
-                            
-                            innerButtons[0].classList.add('active');
-                            innerContents[0].classList.add('active');
-                        }
-                    });
-                }
-            });
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
 
-        function openSubTab(evt, subTabName, parentTabName) {
-            let i, subtabcontent, subtabbuttons;
-            const parentTab = document.getElementById(parentTabName);
-            const container = parentTab.querySelector('.sub-tab-container');
-
-            subtabcontent = container.getElementsByClassName("sub-tab-content");
-            for (i = 0; i < subtabcontent.length; i++) {
-                subtabcontent[i].classList.remove("active");
+        function toggleMenu(element, contentId) {
+            if (contentId) {
+                showContent(contentId);
+                if (window.innerWidth <= 768) toggleSidebar();
+                return;
             }
 
-            subtabbuttons = container.getElementsByClassName("sub-tab-button");
-            for (i = 0; i < subtabbuttons.length; i++) {
-                subtabbuttons[i].classList.remove("active");
-            }
+            const parent = element.parentElement;
+            const submenu = parent.querySelector('.submenu');
+            const hasArrow = element.querySelector('.arrow');
 
-            document.getElementById(subTabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
-
-        function openInnerTab(evt, innerTabName, parentSubTabName) {
-            let i, innerTabContent, innerTabButtons;
-            const parentSubTab = document.getElementById(parentSubTabName);
-            const container = parentSubTab.querySelector('.inner-tab-container');
-
-            innerTabContent = container.getElementsByClassName("inner-tab-content");
-            for (i = 0; i < innerTabContent.length; i++) {
-                innerTabContent[i].classList.remove("active");
-            }
-
-            innerTabButtons = container.getElementsByClassName("inner-tab-button");
-            for (i = 0; i < innerTabButtons.length; i++) {
-                innerTabButtons[i].classList.remove("active");
-            }
-
-            document.getElementById(innerTabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
-
-        function setupSearch(searchInputId, targetContentId) {
-            const searchInput = document.getElementById(searchInputId);
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    const query = this.value.toLowerCase();
-                    const contentDiv = document.getElementById(targetContentId);
-                    
-                    if (contentDiv) {
-                        const paragraphs = contentDiv.getElementsByTagName('p');
-                        let foundMatch = false;
-                        
-                        for (const p of paragraphs) {
-                            const codeBlock = p.nextElementSibling;
-                            if (codeBlock && codeBlock.tagName === 'CODE') {
-                                if (query.length > 0) {
-                                    const paragraphText = p.textContent.toLowerCase();
-                                    const codeText = codeBlock.textContent.toLowerCase();
-                                    
-                                    if (paragraphText.includes(query) || codeText.includes(query)) {
-                                        p.style.display = 'block';
-                                        codeBlock.style.display = 'block';
-                                        codeBlock.classList.add('highlighted');
-                                        foundMatch = true;
-                                    } else {
-                                        p.style.display = 'none';
-                                        codeBlock.style.display = 'none';
-                                    }
-                                } else {
-                                    p.style.display = 'block';
-                                    codeBlock.style.display = 'block';
-                                    codeBlock.classList.remove('highlighted');
-                                    foundMatch = true;
-                                }
-                            }
-                        }
-                        
-                        if (foundMatch && !contentDiv.classList.contains('active')) {
-                            contentDiv.classList.add('active');
-                            const innerTabButton = document.querySelector(`button[onclick*="'${targetContentId}'"]`);
-                            if (innerTabButton) {
-                                const innerTabContainer = contentDiv.closest('.inner-tab-container');
-                                const allInnerButtons = innerTabContainer.querySelectorAll('.inner-tab-button');
-                                allInnerButtons.forEach(btn => btn.classList.remove('active'));
-                                innerTabButton.classList.add('active');
-                            }
-                        }
+            if (submenu) {
+                parent.classList.toggle('open');
+                const siblings = parent.parentElement.children;
+                for (let sibling of siblings) {
+                    if (sibling !== parent && sibling.classList.contains('nav-item')) {
+                        sibling.classList.remove('open');
                     }
-                });
+                }
             }
         }
-        
+
+        function showContent(targetId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.classList.add('active');
+                document.querySelector('.content-scroll').scrollTop = 0;
+            }
+
+            const allLinks = document.querySelectorAll('.nav-link');
+            allLinks.forEach(link => link.classList.remove('active'));
+
+            const clickedLink = document.querySelector(`.nav-link[onclick="showContent('${targetId}')"]`);
+            if (clickedLink) {
+                clickedLink.classList.add('active');
+                let parent = clickedLink.parentElement;
+                while (parent && parent.classList.contains('nav-item')) {
+                    const parentLink = parent.querySelector(':scope > .nav-link');
+                    if (parentLink && !parentLink.querySelector('.arrow')) {
+                        parentLink.classList.add('active');
+                    }
+                    parent = parent.parentElement.closest('.nav-item');
+                    if(parent) parent.classList.add('open');
+                }
+            }
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
+            }
+        }
+
         function filterOltIps() {
             const selectElement = document.getElementById('olt-bts-select');
             const selectedBts = selectElement.value;
@@ -1236,43 +1226,56 @@ system\configure# pon on 1 1</code>
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const firstTabButton = document.querySelector('.tab-buttons .tab-button');
-            if (firstTabButton) {
-                firstTabButton.click();
-            }
+        function setupSearch(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
 
-            // Setup search for all troubleshooting and installation tabs
-            const searchConfigs = [
-                // CDATA GPON
-                ['cdata_troubleshoot_search', 'cdata_troubleshoot'],
-                ['cdata_installation_search', 'cdata_installation'],
+            input.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const container = this.closest('.card');
+                const paragraphs = container.getElementsByTagName('p');
                 
-                // VSOL & ATOP
-                ['vsol_troubleshoot_search', 'vsol_troubleshoot'],
-                ['vsol_installation_search', 'vsol_installation'],
-                
-                // GPON 8 Port
-                ['gpon8_troubleshoot_search', 'gpon8_troubleshoot'],
-                ['gpon8_installation_search', 'gpon8_installation'],
-                
-                // EPON UTSTAR
-                ['utstar_troubleshoot_search', 'utstar_troubleshoot'],
-                ['utstar_installation_search', 'utstar_installation'],
-                
-                // EPON PHYHOME
-                ['phyhome_troubleshoot_search', 'phyhome_troubleshoot'],
-                ['phyhome_installation_search', 'phyhome_installation'],
-                
-                // EPON FHNET
-                ['fhnet_troubleshoot_search', 'fhnet_troubleshoot'],
-                ['fhnet_installation_search', 'fhnet_installation']
+                for (const p of paragraphs) {
+                    const codeBlock = p.nextElementSibling;
+                    if (codeBlock && codeBlock.tagName === 'CODE') {
+                        if (query.length > 0) {
+                            const pText = p.textContent.toLowerCase();
+                            const cText = codeBlock.textContent.toLowerCase();
+                            
+                            if (pText.includes(query) || cText.includes(query)) {
+                                p.style.display = 'block';
+                                codeBlock.style.display = 'block';
+                                codeBlock.classList.add('highlighted');
+                            } else {
+                                p.style.display = 'none';
+                                codeBlock.style.display = 'none';
+                            }
+                        } else {
+                            p.style.display = 'block';
+                            codeBlock.style.display = 'block';
+                            codeBlock.classList.remove('highlighted');
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchIds = [
+                'cdata_troubleshoot_search', 'cdata_installation_search',
+                'vsol_troubleshoot_search', 'vsol_installation_search',
+                'gpon8_troubleshoot_search', 'gpon8_installation_search',
+                'utstar_troubleshoot_search', 'utstar_installation_search',
+                'phyhome_troubleshoot_search', 'phyhome_installation_search',
+                'fhnet_troubleshoot_search', 'fhnet_installation_search'
             ];
             
-            searchConfigs.forEach(config => {
-                setupSearch(config[0], config[1]);
-            });
+            searchIds.forEach(id => setupSearch(id));
+
+            const oltIpLink = document.querySelector('.nav-link[onclick*="olt_ips"]');
+            if(oltIpLink) oltIpLink.classList.add('active');
         });
     </script>
 </body>
 </html>
+```
