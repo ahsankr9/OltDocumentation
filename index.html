@@ -1,7 +1,8 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OLT Docs | Blue-Green Terminal</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
@@ -36,9 +37,16 @@
             --text-muted: #475569;
         }
 
+        html {
+            height: 100%;
+            /* Prevent bounce on mobile */
+            overscroll-behavior: none; 
+        }
+
         * {
             box-sizing: border-box;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -50,22 +58,28 @@
             margin: 0;
             padding: 0;
             color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* App-like feel */
+            /* Prevents pull-to-refresh on mobile interfering with scroll */
+            overscroll-behavior: none;
+            touch-action: pan-x pan-y;
         }
 
         /* --- Layout --- */
         .app-container {
             display: flex;
-            height: 100vh;
+            height: 100%;
             width: 100%;
+            position: relative;
         }
 
         /* --- Sidebar (Hierarchy Focus) --- */
         .sidebar {
             width: 290px;
-            background: rgba(2, 27, 53, 0.9);
+            background: rgba(2, 27, 53, 0.95); /* Slightly more opaque for mobile performance */
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border-right: 1px solid rgba(0, 212, 255, 0.15);
             display: flex;
             flex-direction: column;
@@ -79,6 +93,7 @@
             padding: 24px;
             background: linear-gradient(180deg, rgba(0, 255, 157, 0.1) 0%, transparent 100%);
             border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+            flex-shrink: 0; /* Prevent header from squishing */
         }
 
         .sidebar-header h1 {
@@ -106,6 +121,7 @@
         .sidebar-nav {
             flex: 1;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll for sidebar */
             padding: 10px 0;
         }
         
@@ -128,6 +144,7 @@
             transition: all 0.2s ease;
             border-left: 4px solid transparent;
             font-family: var(--font-main);
+            user-select: none;
         }
 
         /* Level 1 Hover */
@@ -216,6 +233,8 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
+            min-height: 0; /* Crucial for nested flex scrolling */
+            width: 100%;
         }
 
         .mobile-header {
@@ -223,12 +242,14 @@
             padding: 15px 20px;
             background: rgba(2, 27, 53, 0.95);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             z-index: 50;
             border-bottom: 1px solid rgba(0, 212, 255, 0.2);
             color: #fff;
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         .menu-toggle {
@@ -237,6 +258,8 @@
             cursor: pointer;
             color: #00ff9d;
             font-size: 1.5rem;
+            padding: 0;
+            line-height: 1;
         }
 
         .content-scroll {
@@ -244,6 +267,12 @@
             overflow-y: auto;
             padding: 40px;
             scroll-behavior: smooth;
+            
+            /* Mobile Scroll Optimization */
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+            overscroll-behavior: contain; /* Prevents chain scroll to body */
+            position: relative;
+            z-index: 1;
         }
 
         /* --- Content Cards --- */
@@ -291,6 +320,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .card-title {
@@ -325,6 +356,7 @@
             cursor: pointer;
             font-family: var(--font-main);
             margin-bottom: 10px;
+            font-size: 1rem; /* Prevent iOS zoom */
         }
         
         .olt-bts-select {
@@ -373,6 +405,7 @@
             overflow-x: auto;
             line-height: 1.6;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3), 0 0 10px rgba(0, 255, 0, 0.1); /* Subtle Green Glow */
+            word-break: break-word;
         }
 
         code:hover {
@@ -432,11 +465,26 @@
 
         /* --- Responsive --- */
         @media (max-width: 768px) {
-            .app-container { position: relative; }
-            .sidebar { position: fixed; left: -290px; height: 100%; }
+            .app-container { /* Position relative is already set in base, but ensuring flex context */ }
+            
+            .sidebar {
+                position: fixed;
+                left: -290px; 
+                top: 0;
+                height: 100%;
+                max-width: 85%; /* Don't take full width on huge phones */
+                width: 290px;
+            }
+
             .sidebar.active { transform: translateX(290px); left: -290px; }
+            
             .mobile-header { display: flex; }
-            .content-scroll { padding: 20px; }
+            
+            .content-scroll { 
+                padding: 20px; 
+                /* Ensure the scroll container takes available height correctly minus header */
+                height: 100%; 
+            }
             
             .olt-table { font-size: 0.85rem; }
             .olt-table thead { display: none; }
@@ -1183,7 +1231,9 @@ system\configure# pon on 1 1</code>
             const target = document.getElementById(targetId);
             if (target) {
                 target.classList.add('active');
-                document.querySelector('.content-scroll').scrollTop = 0;
+                // Use the scroll element specifically
+                const scrollContainer = document.querySelector('.content-scroll');
+                if(scrollContainer) scrollContainer.scrollTop = 0;
             }
 
             const allLinks = document.querySelectorAll('.nav-link');
@@ -1278,4 +1328,3 @@ system\configure# pon on 1 1</code>
     </script>
 </body>
 </html>
-```
